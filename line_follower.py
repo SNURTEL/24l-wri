@@ -7,7 +7,10 @@ from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C,
 from ev3dev2.sensor import INPUT_1, INPUT_2,INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import TouchSensor, ColorSensor
 
+P =  float(sys.argv[2])
+
 def main():
+
     motor_right = LargeMotor(OUTPUT_D)
     motor_left = LargeMotor(OUTPUT_A)
 
@@ -22,8 +25,13 @@ def main():
     max_speed = 2.5 * speed_base
     black_color = "Black"
 
-    previous_left = 0
-    previous_right = 0
+    def set_speed_left(new_speed, p = P):
+        nonlocal speed_left
+        speed_left = new_speed * p + (1 - p) * speed_left
+
+    def set_speed_right(new_speed, p = P):
+        nonlocal speed_right
+        speed_right = new_speed * p + (1 - p) * speed_right
 
     try:
         print("Robot initialized")
@@ -34,14 +42,14 @@ def main():
             # motor_right.on(speed_base)
         
             if sensor_left.color_name == black_color and sensor_right.color_name != black_color:
-                speed_left =  -.5 * speed_base
-                speed_right = speed_base
+                set_speed_left(-.5 * speed_base)
+                set_speed_right(speed_base)
             elif sensor_right.color_name == black_color and sensor_left.color_name != black_color: 
-                speed_right = -.5 * speed_base
-                speed_left = speed_base
+                set_speed_right(-.5 * speed_base)
+                set_speed_left(speed_base)
             elif sensor_left.color_name != black_color and sensor_right.color_name != black_color:
-                speed_left = speed_base
-                speed_right = speed_base
+                set_speed_left(speed_base)
+                set_speed_right(speed_base)
 
             # speed_left = max(-max_speed, min(max_speed, speed_left))
             # speed_right = max(-max_speed, min(max_speed, speed_right))
