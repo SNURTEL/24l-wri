@@ -53,14 +53,14 @@ def main():
         while True:
             if (
                 sensor_left.color_name == black_color
-                and sensor_right.color_name != black_color
+                and sensor_right.color_name != black_color and previous_movement_state != RIGHT_TURN
             ):
                 set_speed_left(-backwards_factor * slow_speed)
                 set_speed_right(slow_speed)
                 set_movement_state(LEFT_TURN)
             elif (
                 sensor_right.color_name == black_color
-                and sensor_left.color_name != black_color
+                and sensor_left.color_name != black_color and previous_movement_state != LEFT_TURN
             ):
                 set_speed_right(-backwards_factor * slow_speed)
                 set_speed_left(slow_speed)
