@@ -24,6 +24,9 @@ def main():
     backwards_factor = float(sys.argv[3])
     slow_speed = -float(sys.argv[4])
 
+    prev_left = sensor_left.color_name
+    prev_right = sensor_right.color_name
+
     black_color = "Black"
 
     def set_speed_left(new_speed, p=P):
@@ -50,6 +53,12 @@ def main():
             ):
                 set_speed_right(-backwards_factor * slow_speed)
                 set_speed_left(slow_speed)
+            elif (sensor_left.color_name == black_color and sensor_right.color_name == black_color and prev_left == black_color and prev_right != black_color):
+                set_speed_left(-backwards_factor * slow_speed)
+                set_speed_right(slow_speed)
+            elif (sensor_left.color_name == black_color and sensor_right.color_name == black_color and prev_left != black_color and prev_right == black_color):
+                set_speed_right(-backwards_factor * slow_speed)
+                set_speed_left(slow_speed)
             elif (
                 sensor_left.color_name != black_color
                 and sensor_right.color_name != black_color
@@ -59,6 +68,9 @@ def main():
 
             motor_left.on(speed_left)
             motor_right.on(speed_right)
+
+            prev_left = sensor_left.color_name
+            prev_right = sensor_right.color_name
 
             # print("Speed left: " + str(speed_left))
             # print("Speed right: " + str(speed_right))
