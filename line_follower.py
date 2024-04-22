@@ -8,14 +8,14 @@ from ev3dev2.sensor import INPUT_1, INPUT_2,INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import TouchSensor, ColorSensor
 
 def main():
-    motor_right = LargeMotor(OUTPUT_A)
-    motor_left = LargeMotor(OUTPUT_D)
+    motor_right = LargeMotor(OUTPUT_D)
+    motor_left = LargeMotor(OUTPUT_A)
 
-    sensor_right = ColorSensor(INPUT_1)
-    sensor_left = ColorSensor(INPUT_4)
+    sensor_right = ColorSensor(INPUT_4)
+    sensor_left = ColorSensor(INPUT_1)
 
     interval = 1 / 50.0
-    speed_base = float(sys.argv[1])
+    speed_base = -float(sys.argv[1])
     speed_left = speed_base
     speed_right = speed_base
     speed_delta = speed_base * .5
@@ -33,11 +33,13 @@ def main():
             # motor_left.on(speed_base)
             # motor_right.on(speed_base)
         
-            if sensor_left.color_name == black_color:
-                speed_left = -speed_base
-            elif sensor_right.color_name == black_color: 
-                speed_right = -speed_base
-            else:
+            if sensor_left.color_name == black_color and sensor_right.color_name != black_color:
+                speed_left =  -.5 * speed_base
+                speed_right = speed_base
+            elif sensor_right.color_name == black_color and sensor_left.color_name != black_color: 
+                speed_right = -.5 * speed_base
+                speed_left = speed_base
+            elif sensor_left.color_name != black_color and sensor_right.color_name != black_color:
                 speed_left = speed_base
                 speed_right = speed_base
 
