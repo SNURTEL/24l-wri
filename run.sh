@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 IP_ADDR=192.168.18.87
-BASE_SPEED=20
+BASE_SPEED=18
 P=0.65
 BACKWARDS_FACTOR=0.8
-SLOW_SPEED=10
+SLOW_SPEED=9
 
 echo "Upload script"
 scp line_follower.py robot@$IP_ADDR:.

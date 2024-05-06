@@ -22,11 +22,11 @@ def main():
     sensor_right = ColorSensor(INPUT_4)
     sensor_left = ColorSensor(INPUT_1)
 
-    speed_base = -float(sys.argv[1])
+    speed_base = float(sys.argv[1])
     speed_left = speed_base
     speed_right = speed_base
     backwards_factor = float(sys.argv[3])
-    slow_speed = -float(sys.argv[4])
+    slow_speed = float(sys.argv[4])
 
     movement_state = DEFAULT
     previous_movement_state = None
