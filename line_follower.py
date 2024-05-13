@@ -73,7 +73,7 @@ def main():
         nonlocal has_seen_green, has_seen_red
         nonlocal tick_since_first_seen_green, tick_since_first_seen_red
 
-        # turn_iter_counter = max(0, turn_iter_counter - 1)
+        turn_iter_counter = max(0, turn_iter_counter - 1)
 
         # if has_seen_green:
         #     tick_since_first_seen_green = max(0, tick_since_first_seen_green - 1)
@@ -89,16 +89,16 @@ def main():
 
         if (left_color == RED or right_color == RED): #and has_seen_green:
             #has_seen_red = True
-            #turn_iter_counter = TURN_ITER_BLOCK
+            turn_iter_counter = TURN_ITER_BLOCK
             main_color = RED
             #backwards_factor = backwards_factor_color
         elif left_color == GREEN or right_color == GREEN:
             #has_seen_green = True
-            #turn_iter_counter = TURN_ITER_BLOCK
+            turn_iter_counter = TURN_ITER_BLOCK
             main_color = GREEN
             #backwards_factor = backwards_factor_color
-        #elif turn_iter_counter == 0:
-        else:
+        elif turn_iter_counter == 0:
+        # else:
             main_color = BLACK
             #backwards_factor = backwards_factor_base
 
@@ -118,14 +118,14 @@ def main():
         while True:
             color = sensor.color_name
             if color == GREEN:
-                counter = min(3, counter + 1)
+                counter = min(2, counter + 1)
             else:
                 counter = max(0, counter - 1)
 
             # print("Generator color: " + color + ", counter: " + str(counter))                    
 
             if color == GREEN:
-                if counter == 3:
+                if counter == 2:
                     prev_color = GREEN
                     yield GREEN
                 else:
