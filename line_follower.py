@@ -3,7 +3,7 @@
 import sys
 from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_D
 
-from ev3dev2.sensor import INPUT_1, INPUT_4
+from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_4
 from ev3dev2.sensor.lego import TouchSensor, ColorSensor
 from time import sleep
 
@@ -18,6 +18,7 @@ BLACK = "Black"
 RED = "Red"
 GREEN = "Green"
 WHITE = "White"
+BLUE = "Blue"
 
 TURN_ITER_BLOCK = 10
 TICK_SINCE_FIRST = 10
@@ -29,6 +30,8 @@ def main():
 
     sensor_right = ColorSensor(INPUT_4)
     sensor_left = ColorSensor(INPUT_1)
+
+    button = TouchSensor(INPUT_3)
 
     left_color = None
     right_color = None
@@ -45,12 +48,37 @@ def main():
     previous_movement_state = None
 
     turn_iter_counter = 0
-    tick_since_first_seen_green = TICK_SINCE_FIRST
     tick_since_first_seen_red = TICK_SINCE_FIRST
+    tick_since_first_seen_green = TICK_SINCE_FIRST
+    has_seen_red = False
     has_seen_green = False
-    has_seen_red = False 
 
     main_color = BLACK
+
+    def reset():
+        nonlocal speed_base, speed_left, speed_right, backwards_factor_base, backwards_factor_color, backwards_factor, slow_speed, movement_state, previous_movement_state
+        nonlocal turn_iter_counter, tick_since_first_seen_red, tick_since_first_seen_green, has_seen_red, has_seen_green, main_color, left_color, right_color
+        left_color = None
+        right_color = None
+
+        speed_base = float(sys.argv[1])
+        speed_left = speed_base
+        speed_right = speed_base
+        backwards_factor_base = float(sys.argv[3])
+        backwards_factor_color = backwards_factor_base * 1.5
+        backwards_factor = backwards_factor_base
+        slow_speed = float(sys.argv[4])
+
+        movement_state = DEFAULT
+        previous_movement_state = None
+
+        turn_iter_counter = 0
+        tick_since_first_seen_red = TICK_SINCE_FIRST
+        tick_since_first_seen_green = TICK_SINCE_FIRST
+        has_seen_red = False
+        has_seen_green = False
+
+        main_color = BLACK
 
     def set_speed_left(new_speed, p=P):
         nonlocal speed_left
@@ -71,8 +99,8 @@ def main():
         nonlocal left_color, right_color
         nonlocal backwards_factor, backwards_factor_color, backwards_factor_base
         nonlocal turn_iter_counter
-        nonlocal has_seen_green, has_seen_red
-        nonlocal tick_since_first_seen_green, tick_since_first_seen_red
+        nonlocal has_seen_red, has_seen_green
+        nonlocal tick_since_first_seen_red, tick_since_first_seen_green
 
         turn_iter_counter = max(0, turn_iter_counter - 1)
 
@@ -81,53 +109,73 @@ def main():
         elif has_seen_red:
             tick_since_first_seen_red = max(0, tick_since_first_seen_red - 1)
 
-        if tick_since_first_seen_green == 0 and left_color == GREEN and right_color == GREEN:
-            #green_sequence()
-            tick_since_first_seen_green = float('inf')
-        elif tick_since_first_seen_red == 0 and left_color == RED and right_color == RED:
-            #red_sequence()
+        if tick_since_first_seen_red == 0 and left_color == RED and right_color == RED:
+            red_sequence()
             tick_since_first_seen_red = float('inf')
+        elif tick_since_first_seen_green == 0 and left_color == GREEN and right_color == GREEN:
+            green_sequence()
+            tick_since_first_seen_green = float('inf')
 
-        if (left_color == RED or right_color == RED) and has_seen_green: #and has_seen_green:
-            has_seen_red = True
-            turn_iter_counter = TURN_ITER_BLOCK
-            main_color = RED
-            backwards_factor = backwards_factor_color
-        elif left_color == GREEN or right_color == GREEN:
+        if (left_color == GREEN or right_color == GREEN) and has_seen_red and not has_seen_green: #and has_seen_green:
             has_seen_green = True
             turn_iter_counter = TURN_ITER_BLOCK
-            main_color = GREEN
-            ackwards_factor = backwards_factor_color
+            turn_factor = 1 if left_color == GREEN and right_color != GREEN else -1
+            sleep(15 / speed_base)
+            motor_left.on(-turn_factor * 40)
+            motor_right.on(turn_factor * 40)
+            sleep(0.9)
+            motor_left.on(speed_left)
+            motor_right.on(speed_right)
+
+        elif (left_color == RED or right_color == RED) and not has_seen_red:
+            has_seen_red = True
+            turn_iter_counter = TURN_ITER_BLOCK
+            turn_factor = 1 if left_color == RED and right_color != RED else -1
+            sleep(15 / speed_base)
+            motor_left.on(-turn_factor * 40)
+            motor_right.on(turn_factor * 40)
+            sleep(0.9)
+            motor_left.on(speed_left)
+            motor_right.on(speed_right)
+
         elif turn_iter_counter == 0:
         # else:
             main_color = BLACK
             backwards_factor = backwards_factor_base
 
     def green_sequence():
-        # motor_left.on(speed_base)
-        # motor_right.on(-speed_base)
-        # sleep(9999)
         nonlocal motor_left, motor_right
+        print('Entering green sequence...')
         motor_left.on(speed_base)
         motor_right.on(speed_base)
-        sleep(60 / speed_base)
+        sleep(30 / speed_base)
+        motor_left.on(-speed_base)
         motor_right.on(-speed_base)
         sleep(60 / speed_base)
-        motor_right.on(speed_base)
-        sleep(20 / speed_base)
-
+        motor_left.off()
+        motor_right.off()
+        exit()
 
     def red_sequence():
-        motor_left.on(0)
+        nonlocal motor_left, motor_right
+        print('Entering red sequence...')
+        motor_left.on(speed_base)
         motor_right.on(speed_base)
-        sleep(9999)
+        sleep(30 / speed_base)
+        motor_left.on(40)
+        motor_right.on(-40)
+        sleep(1.75)
+        motor_left.on(speed_base)
+        motor_right.on(speed_base)
+        sleep(15 / speed_base)
 
-    def get_current_color(sensor):
+    def get_current_color(sensor, calibrated):
         counter = 0
         prev_color = "NoColor"
         while True:
-            color = sensor.color_name
+            color = get_current_color_calibrated(sensor) if calibrated else sensor.color_name
             # print("RGB: " + str(sensor.rgb) + " HSV: " + str(sensor.hsv) + " name: " + color)
+
             if color == GREEN:
                 counter = min(1, counter + 1)
             else:
@@ -149,36 +197,39 @@ def main():
                     yield color
 
     
-    def _get_current_color_2(sensor):
-        while True:
-            hsv = sensor.hsv
-            
+    def get_current_color_calibrated(sensor):
+        hsv = sensor.hsv
 
-            if abs(hsv[0] - 0.4) < 0.2 and hsv[1] > 0.55 and hsv[2] > 35:
-                color = GREEN
-            elif abs(min(hsv[0], 1-hsv[0])) < 0.2 and hsv[1] > 0.55 and hsv[2] > 35:
-                color = RED
-            elif hsv[2] <= 150:
-                color = BLACK
-            else:
-                color = WHITE
-            
-            # print(str(hsv) + " name: " + color)
+        if abs(hsv[0] - 0.4) < 0.2 and hsv[1] > 0.55 and hsv[2] > 35:
+            color = GREEN
+        elif abs(min(hsv[0], 1-hsv[0])) < 0.2 and hsv[1] > 0.55 and hsv[2] > 35:
+            color = RED
+        elif hsv[2] <= 150:
+            color = BLACK
+        else:
+            color = WHITE
+        
+        #print("[SENSOR RIGHT] RGB: " + str(sensor.rgb) + " HSV: " + str(sensor.hsv) + " name: " + color)
+        return color
 
-            yield color
+    
 
-    def _get_current_color(sensor):
+    def get_current_color_simple(sensor):
         while True:
             yield sensor.color
 
 
     try:
         print("Robot initialized")
-
-        left_generator = get_current_color(sensor_left)
-        right_generator = get_current_color(sensor_right)
+        
+        left_generator = get_current_color(sensor_left, False)
+        right_generator = get_current_color(sensor_right, True)
 
         while True:
+            if button.is_pressed:
+                reset()
+                continue
+
             left_color = next(left_generator)
             right_color = next(right_generator)
 
