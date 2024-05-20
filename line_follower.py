@@ -17,6 +17,7 @@ RIGHT_TURN = 2
 BLACK = "Black"
 RED = "Red"
 GREEN = "Green"
+WHITE = "White"
 
 TURN_ITER_BLOCK = 10
 TICK_SINCE_FIRST = 10
@@ -75,37 +76,46 @@ def main():
 
         turn_iter_counter = max(0, turn_iter_counter - 1)
 
-        # if has_seen_green:
-        #     tick_since_first_seen_green = max(0, tick_since_first_seen_green - 1)
-        # elif has_seen_red:
-        #     tick_since_first_seen_red = max(0, tick_since_first_seen_red - 1)
+        if has_seen_green:
+            tick_since_first_seen_green = max(0, tick_since_first_seen_green - 1)
+        elif has_seen_red:
+            tick_since_first_seen_red = max(0, tick_since_first_seen_red - 1)
 
-        # if tick_since_first_seen_green == 0 and sensor_left.color_name == GREEN and sensor_right.color_name == GREEN:
-        #     green_sequence()
-        #     tick_since_first_seen_green = float('inf')
-        # elif tick_since_first_seen_red == 0 and sensor_left.color_name == RED and sensor_right.color_name == RED:
-        #     red_sequence()
-        #     tick_since_first_seen_red = float('inf')
+        if tick_since_first_seen_green == 0 and left_color == GREEN and right_color == GREEN:
+            #green_sequence()
+            tick_since_first_seen_green = float('inf')
+        elif tick_since_first_seen_red == 0 and left_color == RED and right_color == RED:
+            #red_sequence()
+            tick_since_first_seen_red = float('inf')
 
-        if (left_color == RED or right_color == RED): #and has_seen_green:
-            #has_seen_red = True
+        if (left_color == RED or right_color == RED) and has_seen_green: #and has_seen_green:
+            has_seen_red = True
             turn_iter_counter = TURN_ITER_BLOCK
             main_color = RED
-            #backwards_factor = backwards_factor_color
+            backwards_factor = backwards_factor_color
         elif left_color == GREEN or right_color == GREEN:
-            #has_seen_green = True
+            has_seen_green = True
             turn_iter_counter = TURN_ITER_BLOCK
             main_color = GREEN
-            #backwards_factor = backwards_factor_color
+            ackwards_factor = backwards_factor_color
         elif turn_iter_counter == 0:
         # else:
             main_color = BLACK
-            #backwards_factor = backwards_factor_base
+            backwards_factor = backwards_factor_base
 
     def green_sequence():
+        # motor_left.on(speed_base)
+        # motor_right.on(-speed_base)
+        # sleep(9999)
+        nonlocal motor_left, motor_right
         motor_left.on(speed_base)
+        motor_right.on(speed_base)
+        sleep(60 / speed_base)
         motor_right.on(-speed_base)
-        sleep(9999)
+        sleep(60 / speed_base)
+        motor_right.on(speed_base)
+        sleep(20 / speed_base)
+
 
     def red_sequence():
         motor_left.on(0)
@@ -117,15 +127,16 @@ def main():
         prev_color = "NoColor"
         while True:
             color = sensor.color_name
+            # print("RGB: " + str(sensor.rgb) + " HSV: " + str(sensor.hsv) + " name: " + color)
             if color == GREEN:
-                counter = min(2, counter + 1)
+                counter = min(1, counter + 1)
             else:
                 counter = max(0, counter - 1)
 
             # print("Generator color: " + color + ", counter: " + str(counter))                    
 
             if color == GREEN:
-                if counter == 2:
+                if counter == 1:
                     prev_color = GREEN
                     yield GREEN
                 else:
@@ -137,6 +148,28 @@ def main():
                     prev_color = color
                     yield color
 
+    
+    def _get_current_color_2(sensor):
+        while True:
+            hsv = sensor.hsv
+            
+
+            if abs(hsv[0] - 0.4) < 0.2 and hsv[1] > 0.55 and hsv[2] > 35:
+                color = GREEN
+            elif abs(min(hsv[0], 1-hsv[0])) < 0.2 and hsv[1] > 0.55 and hsv[2] > 35:
+                color = RED
+            elif hsv[2] <= 150:
+                color = BLACK
+            else:
+                color = WHITE
+            
+            # print(str(hsv) + " name: " + color)
+
+            yield color
+
+    def _get_current_color(sensor):
+        while True:
+            yield sensor.color
 
 
     try:
