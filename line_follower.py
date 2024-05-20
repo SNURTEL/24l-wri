@@ -53,11 +53,14 @@ def main():
     has_seen_red = False
     has_seen_green = False
 
+    cargo_picked = False
+    ticks_to_exit_cargo_area = 100
+
     main_color = BLACK
 
     def reset():
         nonlocal speed_base, speed_left, speed_right, backwards_factor_base, backwards_factor_color, backwards_factor, slow_speed, movement_state, previous_movement_state
-        nonlocal turn_iter_counter, tick_since_first_seen_red, tick_since_first_seen_green, has_seen_red, has_seen_green, main_color, left_color, right_color
+        nonlocal turn_iter_counter, tick_since_first_seen_red, tick_since_first_seen_green, has_seen_red, has_seen_green, main_color, left_color, right_color, ticks_to_exit_cargo_area, cargo_picked
         left_color = None
         right_color = None
 
@@ -77,6 +80,9 @@ def main():
         tick_since_first_seen_green = TICK_SINCE_FIRST
         has_seen_red = False
         has_seen_green = False
+
+        ticks_to_exit_cargo_area = 100
+        cargo_picked = False
 
         main_color = BLACK
 
@@ -100,9 +106,12 @@ def main():
         nonlocal backwards_factor, backwards_factor_color, backwards_factor_base
         nonlocal turn_iter_counter
         nonlocal has_seen_red, has_seen_green
-        nonlocal tick_since_first_seen_red, tick_since_first_seen_green
+        nonlocal tick_since_first_seen_red, tick_since_first_seen_green, ticks_to_exit_cargo_area
 
         turn_iter_counter = max(0, turn_iter_counter - 1)
+
+        if cargo_picked:
+            ticks_to_exit_cargo_area = max(0, ticks_to_exit_cargo_area - 1)
 
         if has_seen_green:
             tick_since_first_seen_green = max(0, tick_since_first_seen_green - 1)
@@ -157,7 +166,7 @@ def main():
         exit()
 
     def red_sequence():
-        nonlocal motor_left, motor_right
+        nonlocal motor_left, motor_right, cargo_picked
         print('Entering red sequence...')
         motor_left.on(speed_base)
         motor_right.on(speed_base)
@@ -168,6 +177,7 @@ def main():
         motor_left.on(speed_base)
         motor_right.on(speed_base)
         sleep(15 / speed_base)
+        cargo_picked = True
 
     def get_current_color(sensor, calibrated):
         counter = 0
@@ -256,7 +266,18 @@ def main():
                 set_speed_left(speed_base)
                 set_speed_right(speed_base)
                 set_movement_state(DEFAULT)
-            
+            elif (
+                left_color == main_color and right_color == main_color
+                and cargo_picked and ticks_to_exit_cargo_area == 0
+            ):
+                sleep(15 / speed_base)
+                motor_left.on(-40)
+                motor_right.on(40)
+                sleep(0.9)
+                motor_left.on(speed_left)
+                motor_right.on(speed_right)
+                ticks_to_exit_cargo_area = float('inf')
+
             motor_left.on(speed_left)
             motor_right.on(speed_right)
 
