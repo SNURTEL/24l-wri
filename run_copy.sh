@@ -6,6 +6,11 @@ P=0.65
 BACKWARDS_FACTOR=0.8
 SLOW_SPEED=10
 
+BASE_SPEED=12
+P=0.5
+BACKWARDS_FACTOR=0.9
+SLOW_SPEED=9
+
 echo "Upload script"
 scp line_follower_copy.py robot@$IP_ADDR:.
 echo "Running..."
