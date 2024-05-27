@@ -3,8 +3,8 @@
 import sys
 from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_D
 
-from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_4
-from ev3dev2.sensor.lego import TouchSensor, ColorSensor
+from ev3dev2.sensor import INPUT_1, INPUT_4
+from ev3dev2.sensor.lego import ColorSensor
 from time import sleep
 
 P = float(sys.argv[2])
@@ -31,7 +31,7 @@ def main():
     sensor_right = ColorSensor(INPUT_4)
     sensor_left = ColorSensor(INPUT_1)
 
-    button = TouchSensor(INPUT_3)
+    # button = TouchSensor(INPUT_3)
 
     left_color = None
     right_color = None
@@ -167,7 +167,7 @@ def main():
         sleep(60 / speed_base)
         motor_left.off()
         motor_right.off()
-        #exit()
+        exit()
 
     def red_sequence():
         nonlocal motor_left, motor_right, cargo_picked
@@ -180,7 +180,7 @@ def main():
         sleep(3.5)
         motor_left.on(speed_base)
         motor_right.on(speed_base)
-        sleep(75 / speed_base)
+        sleep(77.5 / speed_base)
         motor_left.on(40)
         motor_right.on(-40)
         sleep(0.85)
@@ -246,9 +246,9 @@ def main():
         right_generator = get_current_color(sensor_right, True)
 
         while True:
-            if button.is_pressed:
-                reset()
-                continue
+            # if button.is_pressed:
+            #     reset()
+            #     continuemain_color
 
             left_color = next(left_generator)
             right_color = next(right_generator)
@@ -277,6 +277,10 @@ def main():
                 set_speed_right(speed_base)
                 set_movement_state(DEFAULT)
             else:
+                if previous_movement_state == DEFAULT:
+                    set_speed_left(speed_base)
+                    set_speed_right(speed_base)
+
                 set_movement_state(DEFAULT)
             # elif (
             #     left_color == main_color and right_color == main_color
