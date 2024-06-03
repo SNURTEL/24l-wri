@@ -5,6 +5,7 @@ from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_D
 
 from ev3dev2.sensor import INPUT_1, INPUT_4
 from ev3dev2.sensor.lego import ColorSensor
+from time import sleep
 
 
 P = float(sys.argv[2])
@@ -56,6 +57,60 @@ def main():
         previous_movement_state = movement_state
         movement_state = state
 
+    def init_state():
+        nonlocal main_color
+        nonlocal left_color, right_color
+        nonlocal backwards_factor
+
+        if (left_color == GREEN or right_color == GREEN):
+            sleep(15 / speed_base)
+            motor_left.on(-40)
+            motor_right.on(40)
+            sleep(0.85)
+            motor_left.on(speed_left)
+            motor_right.on(speed_right)
+            green_sequence()
+
+        elif (left_color == RED or right_color == RED):
+            sleep(15 / speed_base)
+            motor_left.on(40)
+            motor_right.on(-40)
+            sleep(0.875)
+            motor_left.on(speed_left)
+            motor_right.on(speed_right)
+            red_sequence()
+
+    def green_sequence():
+        nonlocal motor_left, motor_right
+        print('Entering green sequence...')
+        motor_left.on(speed_base)
+        motor_right.on(speed_base)
+        sleep(30 / speed_base)
+        motor_left.on(-speed_base)
+        motor_right.on(-speed_base)
+        sleep(60 / speed_base)
+        motor_left.off()
+        motor_right.off()
+        exit()
+
+    def red_sequence():
+        nonlocal motor_left, motor_right
+        print('Entering red sequence...')
+        motor_left.on(speed_base)
+        motor_right.on(speed_base)
+        sleep(80 / speed_base)
+        motor_left.on(20)
+        motor_right.on(-20)
+        sleep(3.5)
+        motor_left.on(speed_base)
+        motor_right.on(speed_base)
+        sleep(77.5 / speed_base)
+        motor_left.on(40)
+        motor_right.on(-40)
+        sleep(0.85)
+        motor_left.on(speed_left)
+        motor_right.on(speed_right)
+
     def get_current_color(sensor, calibrated):
         counter = 0
         prev_color = "NoColor"
@@ -104,6 +159,8 @@ def main():
         while True:
             left_color = next(left_generator)
             right_color = next(right_generator)
+
+            init_state()
 
             if (
                 left_color == main_color
