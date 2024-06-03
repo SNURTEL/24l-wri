@@ -32,14 +32,6 @@ Nazwa robota: *Widłogon*
   <img src="./towar2.jpg" alt="Transporter" width="300" />
 </p>
 
-
-## Oprogramowanie
-
-Algorytm sterowania robotem zaimplementowano w języku Python z wykorzystaniem biblioteki `python-ev3dev`.
-
-TODO opisać algorytm (FTL i transporter)
-
-
 ## Procedura kalibracji
 
 Z uwagi na rozbieżności w odczytach z obu sensorów konieczna była kalibracja jednego z nich. Algorytm ustalania odczytanego koloru opierał się na odczycie z sensora w przestrzeni HSV. Kolory zielony i czerwony rozpoznawane były w oparciu o odległość składowej H od zadanej wartości (odpowiednio 0.4 i 0) a także składowe S oraz V przekraczające zadany próg (0.55 i 35). Kolor czarny determinowany był przez brak spełnienia warunków do uznania odczytanego koloru za czerwony bądź zielony oraz wartość składowej V nie większą niż 150. Jeśli żaden z wcześniej wymienionych warunków nie był spełniony, przyjmowano kolor biały:
@@ -68,7 +60,7 @@ Algorytm sterowania przyjmował cztery parametry:
 
 Celem strojenia parametrów było uzyskanie jak największej wartości `BASE_SPEED` przy poprawnym zachowaniu robota. Parametry `SLOW_SPEED` i `BACKWARDS_FACTOR` wpływały na sposób pokonywania zakrętów przez robota - większe wartości pozwalały skręcać bardziej agresywnie i szybciej dostosowywać się do nagłych zmian kierunku jazdy, ale zmniejszały stabilność przejazdu przez skrzyżowania (co udało się rozwiązać przez wprowadzenie stanów ruchu). Parametry dostrojono w sposób pseudo-losowy po utworzeniu pierwszej wersji algorytmu sterowania, a następnie dostrajano na jego finalnej wersji. 
 
-W zadaniu FTL włączenie mechanizmu stanów ruchu pozwoliło uzyskać bardzo stabilne przejazdy przez skrzyżowania, w związku z czym skupiono się na maksymalizacji szybkości przejazdu. Zrównano wartości `BASE_SPEED` oraz `SLOW_SPEED` oraz ustawiono `BACKWARDS_FACTOR` na 1.5, co pozwoliło w szybki sposób pokonywać zakręty pod kątem prostym (konieczne było tu zwiększenie rozstawu sensorów w konstrukcji). Wygładzanie zmian prędkości zostało wyłączone (`P=1`), gdyż jego głównym zastosowaniem była stabilizacja przejazdu przez skrzyżowania. Następnie zwiększano wartość `BASE_SPEED` aż do utraty stabilności - na zaliczeniu wykorzystano wartość 26, faktyczna utrata stabilności następowała około wartości 28 - robot nie był w stanie zbierać odczytów z sensorów wystarczająco szybko i przejeżdżał prosto przez niektóre zakręty. W
+W zadaniu FTL włączenie mechanizmu stanów ruchu pozwoliło uzyskać bardzo stabilne przejazdy przez skrzyżowania, w związku z czym skupiono się na maksymalizacji szybkości przejazdu. Zrównano wartości `BASE_SPEED` oraz `SLOW_SPEED` oraz ustawiono `BACKWARDS_FACTOR` na 1.5, co pozwoliło w szybki sposób pokonywać zakręty pod kątem prostym (konieczne było tu zwiększenie rozstawu sensorów w konstrukcji). Wygładzanie zmian prędkości zostało wyłączone (`P=1`), gdyż jego głównym zastosowaniem była stabilizacja przejazdu przez skrzyżowania. Następnie zwiększano wartość `BASE_SPEED` aż do utraty stabilności - na zaliczeniu wykorzystano wartość 26, faktyczna utrata stabilności następowała około wartości 28 - robot nie był w stanie zbierać odczytów z sensorów wystarczająco szybko i przejeżdżał prosto przez niektóre zakręty.
 
 W zadaniu transportera konieczne było uzyskanie płynnego ruchu robota z uwagi na sposób transportu ładunku - ponieważ był on przesuwany po planszy, zbyt agresywny ruch mógłby spowodować zgubienie ładunku. Nie korzystano z agresywnych skrętów (`BACKWARDS_FACTOR=0.8`, `SLOW_SPEED=0.5*BASE_SPEED`), ustawiono duży rozmiar okna wygładzania (`P=0.65`). Najwyższą przetestowaną wartością `BASE_SPEED` było 20 - na sprawdzenie wyższych zabrakło czasu.
 
@@ -94,7 +86,7 @@ Algorytm "Follow the Line" jest odpowiedzialny za prowadzenie robota wzdłuż li
 
 * Zarządzanie Stanami:
 
-  Algorytm utrzymuje stany (`DEFAULT`, `LEFT_TURN`, `RIGHT_TURN`) w celu zapewnienia płynnych przejść między różnymi ruchami.
+  Algorytm utrzymuje stany (`DEFAULT`, `LEFT_TURN`, `RIGHT_TURN`) w celu zapewnienia płynnych przejść między różnymi ruchami. Stanowość ruchu służy kontroli tego, aby robot nie był zablokowany w sekwencji przełączania się pomiędzy skrętem w lewo a skrętem w prawo (tj. niemożliwe jest, aby bezpośrednio po ruchu w lewo robot wykonał skręt w prawo i odwrotnie).
   Funkcje `set_speed_left` i `set_speed_right` są używane do dostosowywania prędkości silników w zależności od bieżącego stanu.
 
 ## Algorytm Transportera
