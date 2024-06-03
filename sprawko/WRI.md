@@ -82,6 +82,51 @@ W zadaniu FTL włączenie mechanizmu stanów ruchu pozwoliło uzyskać bardzo st
 
 W zadaniu transportera konieczne było uzyskanie płynnego ruchu robota z uwagi na sposób transportu ładunku - ponieważ był on przesuwany po planszy, zbyt agresywny ruch mógłby spowodować zgubienie ładunku. Nie korzystano z agresywnych skrętów (`BACKWARDS_FACTOR=0.8`, `SLOW_SPEED=0.5*BASE_SPEED`), ustawiono duży rozmiar okna wygładzania (`P=0.65`). Najwyższą przetestowaną wartością `BASE_SPEED` było 20 - na sprawdzenie wyższych zabrakło czasu.
 
+## Algorytm Śledzenia Linii (Follow the Line - FTL)
+
+Algorytm "Follow the Line" jest odpowiedzialny za prowadzenie robota wzdłuż linii na podłożu przy użyciu dwóch sensorów koloru. Robot dostosowuje swoje ruchy na podstawie koloru wykrytego przez te sensory.
+
+* Inicjalizacja:
+
+    Robot jest inicjalizowany z określonymi parametrami prędkości (`BASE_SPEED`, `SLOW_SPEED`, `BACKWARDS_FACTOR`) oraz współczynnikiem proporcjonalnym P do kontroli proporcjonalnej.
+
+* Zbieranie Danych z Sensorów:
+
+    Dwa sensory koloru (`sensor_left` i `sensor_right`) są używane do wykrywania koloru linii. Kolor jest określany za pomocą funkcji `get_current_color`, która pobiera odczyt z sensora i kalibruje go, aby określić, czy jest to kolor czarny, biały, czerwony czy zielony.
+
+* Główna Pętla:
+
+    Robot stale sprawdza kolor wykrywany przez lewy i prawy sensor.
+    Jeśli lewy sensor wykrywa linię (główny kolor), a prawy nie, robot skręca w lewo.
+    Jeśli prawy sensor wykrywa linię, a lewy nie, robot skręca w prawo.
+    Jeśli żaden sensor nie wykrywa linii, robot jedzie prosto.
+    Jeśli oba sensory wykrywają linię, robot kontynuuje jazdę na wprost.
+
+* Zarządzanie Stanami:
+
+  Algorytm utrzymuje stany (`DEFAULT`, `LEFT_TURN`, `RIGHT_TURN`) w celu zapewnienia płynnych przejść między różnymi ruchami.
+  Funkcje `set_speed_left` i `set_speed_right` są używane do dostosowywania prędkości silników w zależności od bieżącego stanu.
+
+## Algorytm Transportera
+
+Algorytm "Transporter" jest zaprojektowany do prowadzenia robota w celu transportu ładunku między wyznaczonymi punktami. Wykorzystuje on wykrywanie określonych kolorów (czerwony i zielony), aby inicjować sekwencje podnoszenia i zrzucania ładunku.
+
+* Inicjalizacja:
+  Podobnie jak w algorytmie FTL, algorytm transportera inicjalizuje robota z określonymi parametrami prędkości i kontroli.
+
+* Zbieranie Danych z Sensorów:
+  Te same sensory koloru są używane do wykrywania kolorów czerwonego i zielonego, które sygnalizują punkty startowe i końcowe sekwencji transportu ładunku.
+
+* Główna Pętla:
+  Robot stale sprawdza kolory wykrywane przez sensory.
+  Gdy wykryty zostanie kolor zielony, wywoływana jest funkcja `red_sequence`, która przemieszcza robota do strefy ładunkowej.
+  Gdy wykryty zostanie kolor czerwony, wywoływana jest funkcja `green_sequence`, która przemieszcza robota w celu zrzucenia ładunku.
+
+* Sekwencje:
+  Funkcja `red_sequence` przesuwa robota do przodu aby nadziać ładunek, wykonuje obrót o 180 stopni, a następnie kontynuuje jazdę..
+  Funkcja `green_sequence` przesuwa robota do przodu, a następnie cofa go na krótki czas, aby zsunąć ładunek z wideł.
+  
+
 ## Problemy
 
 Wśród problemów napotkanych podczas realizacji zadania warto wymienić następujące:
@@ -101,39 +146,3 @@ Robot osiągnął najlepszy czas w grupie laboratoryjnej zarówno w zadaniu FTL 
 ### Link do repozytorium z kodem na Githubie
 
 https://github.com/SNURTEL/24l-wri
-
-
-
-
-
-
-
-# OLD
-
-
-### Opis konstrukcji
-
-Podczas budowy robota wielokrotnie zmienialiśmy koncepcję i kształt, jednak przez wszystkie iteracje naszym głównym założeniem była "Prostota Wykonania". W ostatecznej iteracji zdecydowaliśmy się na konstrukcję, która oferowała jak najlepszą mobilność i kontrolę ruchu. Wybraliśmy robota z napędem na przednie koła o średnim rozmiarze i szerokim bieżniku, a jako tylne koła zastosowaliśmy metalowe kulki, inspirując się wózkami z supermarketów. Pozwoliło to na płynne skręcanie bez oporów i skomplikowania konstrukcji, jakie spowodowałoby użycie kół gumowych.
-
-Nasze sensory kolorów zostały minimalnie wysunięte przed przednie koła, aby jak najbardziej pokrywały się z osią obrotu robota. Dodatkowo zdecydowaliśmy się na stosunkowo duże rozstawienie zarówno sensorów, jak i kół przednich, co ułatwiło utrzymywanie się na trasie podczas zakrętów.
-
-Wierni naszemu mottu prostoty wykonania, zrezygnowaliśmy ze skomplikowanego i ruchomego podnośnika. Zamiast tego użyliśmy metody nadziewania towaru na widły, stąd nazwa naszego robota - Widłogon. Pozwoliło nam to znacząco uprościć sekwencję podnoszenia i opuszczania towaru. Wystarczyło nadziać towar na widły, a następnie po dojechaniu na pole o odpowiednim kolorze wycofać się, aby towar sam się zsunął. Dodatkowo na czas testowania i dostosowywania parametrów dodaliśmy do robota przycisk pozwalający nam resetować kod tak aby łatwiej było nam testować odbieranie i dostarczanie towaru.
-
-Dzięki prostej konstrukcji bardzo łatwo było zmodyfikować naszego robota i usunąć dodatkowe obciążenie, jakim były widły, na czas wyścigu podążania po linii. Dzięki naszemu podejściu udało nam się osiągnąć najkrótszy czas w naszej grupie zarówno podczas wyścigu wykrywania linii (1:29:02), jak i transportu towaru (00:53:03).
-
-### Tablica wyników
-<p><img src="./wyniki.jpg" alt="Line Follower" width="300" /></p>
-
-### Line Follower
-
-<p float="left">
-  <img src="./linia1.jpg" alt="Line Follower" width="300" />
-  <img src="./linia2.jpg" alt="Line Follower" width="300" />
-</p>
-
-### Transporter
-
-<p float="left">
-  <img src="./towar1.jpg" alt="Transporter" width="300" />
-  <img src="./towar2.jpg" alt="Transporter" width="300" />
-</p>
