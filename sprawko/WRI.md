@@ -1,10 +1,57 @@
-### PROJEKT WIDŁOGON
+# WRI - laboratorium
+
+Grupa laboratoryjna 105, realizacja stacjonarna 24L
 
 Członkowie zespołu:
 
 - Tomasz Owienko
-- Bartosz SSSSS-Kisły
+- Bartosz Kisły
 - Jakub Woźniak
+
+- [x] Zdjęcie i nazwa robota
+- [x] Zgrubny opis urządzeń
+- [ ] Kalibracja
+- [ ] Algorytm śledzenia linii (schemat blokowy?)
+- [ ] Procedura doboru parametrów
+- [ ] Algorytm transportera (schemat blokowy?)
+- [ ] Problemy 
+- [ ] Wnioski? xd
+
+
+## Cel laboratorium
+
+Celem laboratorium było zbudowanie robota z zestawu LEGO MINDSTORMS EV3 oraz oprogramowanie go pod kątem realizacji zadań przemieszczania się wzdłuż linii (*follow the line*) oraz transportu ładunku między zadanymi punktami.
+
+## Opis konstrukcji
+
+Zbudowany robot charakteryzuje się niskim środkiem ciężkości oraz bardzo szerokim rozstawem kół. Baza jezdna składa się z dwóch gumowych kół napędowych o szerokim bieżniku wysuniętych przed środek ciężkości oraz dwóch kół opartych na metalowych kulkach mających za zadanie stabilizować robota z tyłu. Niewiele przed osią obrotu umieszczono dwa sensory koloru na wysokości ok. 5mm od podłoża i w odległości ok 2cm pomiędzy sobą. Z tyłu robota umieszczono przycisk pozwalający zresetować zawarty w oprogramowaniu automat stanowy - finalnie okazał się on zbędny. Nad sensorami koloru umieszczono podłużny klocek LEGO (*"widły"*), który w zadaniu transportera służył do przesuwania ładunku po planszy bez podnoszenia go. Podczas realizacji zadania FTL zwiększono nieco rozstaw czujników koloru, co niestety nie zostało uchwycone na zdjęciach.
+
+Nazwa robota: *Widłogon*
+
+### FTL
+
+<p float="left">
+  <img src="./linia1.jpg" alt="Line Follower" width="300" />
+  <img src="./linia2.jpg" alt="Line Follower" width="300" />
+</p>
+
+### Transporter
+
+<p float="left">
+  <img src="./towar1.jpg" alt="Transporter" width="300" />
+  <img src="./towar2.jpg" alt="Transporter" width="300" />
+</p>
+
+
+## Oprogramowanie
+
+Algorytm sterowanie robotem zaimplementowano w języku Python z wykorzystaniem biblioteki `python-ev3dev`.
+
+TODO opisać algorytm
+
+
+## Procedura kalibracji
+
 
 ### Link do repozytorium z kodem na Githubie
 
