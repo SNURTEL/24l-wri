@@ -96,7 +96,7 @@ Wśród problemów napotkanych podczas realizacji zadania warto wymienić nastę
 
 Robot osiągnął najlepszy czas w grupie laboratoryjnej zarówno w zadaniu FTL (1:21:02) jak i transportera (0:50:44)
 
-p><img src="./wyniki.jpg" alt="Line Follower" width="300" /></p>
+<p><img src="./wyniki.jpg" alt="Line Follower" width="300" /></p>
 
 ### Link do repozytorium z kodem na Githubie
 
