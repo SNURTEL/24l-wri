@@ -8,16 +8,6 @@ Członkowie zespołu:
 - Bartosz Kisły
 - Jakub Woźniak
 
-- [x] Zdjęcie i nazwa robota
-- [x] Zgrubny opis urządzeń
-- [x] Kalibracja
-- [ ] Algorytm śledzenia linii (schemat blokowy?)
-- [x] Procedura doboru parametrów
-- [ ] Algorytm transportera (schemat blokowy?)
-- [x] Problemy 
-- [ ] Wnioski? xd
-
-
 ## Cel laboratorium
 
 Celem laboratorium było zbudowanie robota z zestawu LEGO MINDSTORMS EV3 oraz oprogramowanie go pod kątem realizacji zadań przemieszczania się wzdłuż linii (*follow the line*) oraz transportu ładunku między zadanymi punktami.
